@@ -12,7 +12,7 @@ float getReading() {
 // Scan readings over X and Y angles
 void scan_readings(vector<int>& x_angles, vector<int>& y_angles, vector<vector<float>>& z_values) {
     // Fill x_angles (0 to 350 step 10)
-    for (int x = 0; x < 360; x += 10) {
+    for (int x = 0; x <= 350; x += 10) {
         x_angles.push_back(x);
     }
     
