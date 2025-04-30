@@ -1,0 +1,72 @@
+#include <Servo.h>
+
+Servo myServo;
+
+const int analogPin = A0;
+const float referenceVoltage = 5.0;
+
+const int stepSize = 5;
+const int maxAngle = 180;
+const int steps = (maxAngle / stepSize) + 1;
+
+int angles[steps];
+float voltages[steps];
+
+void setup() {
+  Serial.begin(9600);
+  myServo.attach(6);
+
+  sweepServoAndRecord();  // Perform sweep and data collection
+
+  int maxAngleFound = findMaxVoltageAngle();  // Get angle of highest voltage
+
+  Serial.println("\nReturning to angle with highest voltage...");
+  myServo.write(maxAngleFound);
+  Serial.print("Moved to angle: ");
+  Serial.print(maxAngleFound);
+  Serial.println("°");
+}
+
+void loop() {
+  // Empty for now
+}
+
+void sweepServoAndRecord() {
+  for (int i = 0; i < steps; i++) {
+    int angle = i * stepSize;
+    myServo.write(angle);
+    delay(500);  // Let servo settle
+
+    int sensorValue = analogRead(analogPin);
+    float voltage = sensorValue * (referenceVoltage / 1023.0);
+
+    angles[i] = angle;
+    voltages[i] = voltage;
+
+    Serial.print("Angle: ");
+    Serial.print(angle);
+    Serial.print("°, Voltage: ");
+    Serial.print(voltage, 2);
+    Serial.println(" V");
+  }
+}
+
+int findMaxVoltageAngle() {
+  float maxVoltage = voltages[0];
+  int maxAngle = angles[0];
+
+  for (int i = 1; i < steps; i++) {
+    if (voltages[i] > maxVoltage) {
+      maxVoltage = voltages[i];
+      maxAngle = angles[i];
+    }
+  }
+
+  Serial.print("Max Voltage: ");
+  Serial.print(maxVoltage, 2);
+  Serial.print(" V at angle ");
+  Serial.print(maxAngle);
+  Serial.println("°");
+
+  return maxAngle;
+}
